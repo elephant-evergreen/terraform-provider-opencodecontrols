@@ -53,7 +53,7 @@ func (*apiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			"name":               schema.StringAttribute{Required: true, PlanModifiers: replace, MarkdownDescription: "Name shown in the service account's credentials list. Changing this replaces the key."},
 			"permissions":        schema.StringAttribute{Optional: true, Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace(), stringplanmodifier.UseStateForUnknown()}, MarkdownDescription: "Permission level. New keys must be restricted (the default). Import can preserve all or read-only keys."},
 			"scopes":             schema.SetAttribute{Optional: true, Computed: true, ElementType: types.StringType, PlanModifiers: []planmodifier.Set{setplanmodifier.RequiresReplace(), setplanmodifier.UseStateForUnknown()}, MarkdownDescription: "Permission scopes, such as models:read. Specify at least one scope when creating a key. Changing this replaces the key."},
-			"expires_at":         schema.StringAttribute{Optional: true, PlanModifiers: replace, MarkdownDescription: "Expiration as an RFC3339 timestamp. Omit for a key without expiration. Changing this replaces the key."},
+			"expires_at":         schema.StringAttribute{Optional: true, PlanModifiers: replace, MarkdownDescription: "Expiration as an RFC3339 timestamp with whole-second precision. Omit for a key without expiration. Changing this replaces the key."},
 			"status":             schema.StringAttribute{Computed: true, MarkdownDescription: "Status reported by OpenCode Console."},
 			"value":              schema.StringAttribute{Computed: true, Sensitive: true, PlanModifiers: retain, MarkdownDescription: "Bearer token returned at creation. Terraform stores it in state. Imported keys have no value in state."},
 		},
@@ -85,8 +85,8 @@ func (*apiKeyResource) ValidateConfig(ctx context.Context, req resource.Validate
 		resp.Diagnostics.AddAttributeError(path.Root("name"), "Invalid API key name", "Use a nonempty name.")
 	}
 	if !config.ExpiresAt.IsNull() && !config.ExpiresAt.IsUnknown() {
-		if _, err := time.Parse(time.RFC3339, config.ExpiresAt.ValueString()); err != nil {
-			resp.Diagnostics.AddAttributeError(path.Root("expires_at"), "Invalid expiration", "Use an RFC3339 timestamp.")
+		if expiration, err := time.Parse(time.RFC3339, config.ExpiresAt.ValueString()); err != nil || expiration.Nanosecond() != 0 {
+			resp.Diagnostics.AddAttributeError(path.Root("expires_at"), "Invalid expiration", "Use an RFC3339 timestamp with whole-second precision.")
 		}
 	}
 }
@@ -128,8 +128,8 @@ func (r *apiKeyResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 	if !plan.ExpiresAt.IsNull() {
 		expiration, err := time.Parse(time.RFC3339, plan.ExpiresAt.ValueString())
-		if err != nil || !expiration.After(time.Now()) {
-			resp.Diagnostics.AddAttributeError(path.Root("expires_at"), "Invalid expiration", "Use a future RFC3339 timestamp.")
+		if err != nil || expiration.Nanosecond() != 0 || !expiration.After(time.Now()) {
+			resp.Diagnostics.AddAttributeError(path.Root("expires_at"), "Invalid expiration", "Use a future RFC3339 timestamp with whole-second precision.")
 			return
 		}
 		input.ExpiresAt = &expiration

@@ -46,7 +46,7 @@ terraform import opencodecontrols_service_account_api_key.models svcacct_01AAAAA
 
 ### Optional
 
-- `expires_at` (String) Expiration as an RFC3339 timestamp. Omit for a key without expiration. Changing this replaces the key.
+- `expires_at` (String) Expiration as an RFC3339 timestamp with whole-second precision. Omit for a key without expiration. Changing this replaces the key.
 - `permissions` (String) Permission level. New keys must be restricted (the default). Import can preserve all or read-only keys.
 - `scopes` (Set of String) Permission scopes, such as models:read. Specify at least one scope when creating a key. Changing this replaces the key.
 
