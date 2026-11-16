@@ -1,0 +1,15 @@
+OpenCode Controls Terraform Provider
+Copyright 2026 terraform-provider-opencodecontrols contributors
+
+This project's source code is available under the Mozilla Public License,
+version 2.0. See LICENSE for the full text.
+
+OpenCode and Terraform identify products with which this project interoperates.
+This is a community project. The respective product owners retain their rights.
+
+Release scripts and configuration are adapted from Cloudflare Account Controls,
+Copyright 2026 terraform-provider-cloudflarecontrols contributors, under the
+Mozilla Public License, version 2.0. The source is available at
+https://github.com/elephant-evergreen/terraform-provider-cloudflarecontrols/tree/5cc7b30c0b9710073fb94a44e62e215793371acb.
+
+Dependency license notices are included in release archives.

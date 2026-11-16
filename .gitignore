@@ -1,0 +1,15 @@
+/.terraform/
+/terraform-provider-opencodecontrols
+/dist/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+.env
+.env.*
+*.pem
+*.key
+/third-party/
