@@ -1,0 +1,25 @@
+[tools]
+go = "1.27.4"
+terraform = "1.17.2"
+
+[tasks.docs]
+description = "Generate the Terraform Registry documentation."
+run = "go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@v0.25.0 generate --provider-name opencodecontrols"
+
+[tasks.licenses]
+description = "Collect dependency licenses and required source notices for release packages."
+run = "go run github.com/google/go-licenses/v2@v2.0.1 save --ignore github.com/elephant-evergreen/terraform-provider-opencodecontrols --force --save_path third-party ."
+
+[tasks.check]
+description = "Check formatting, modules, vet, tests, build, vulnerabilities, examples, and documentation."
+run = [
+  'test -z "$(gofmt -l main.go internal)"',
+  "go mod verify",
+  "go vet ./...",
+  "go test ./...",
+  "go build -o /dev/null .",
+  "terraform fmt -check -recursive examples",
+  "go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...",
+  "mise run docs",
+  "git diff --exit-code -- docs",
+]

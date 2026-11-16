@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: bin/release check-tag "$GITHUB_REF_NAME"
+      - uses: jdx/mise-action@v5.2.9
+        with:
+          version: 2026.11.9
+      - run: mise run check
+      - run: mise run licenses
+      - name: Import release signing key
+        id: signing
+        uses: crazy-max/ghaction-import-gpg@v7.0.0
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+      - uses: goreleaser/goreleaser-action@v7.3.0
+        with:
+          version: v2.20.2
+          args: release --clean --parallelism 2 --skip=publish,announce
+        env:
+          GPG_FINGERPRINT: ${{ steps.signing.outputs.fingerprint }}
+      - name: Verify and publish signed release
+        run: bin/release publish "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Verify Registry installation
+        run: mise exec -- bin/release verify-registry "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY"
