@@ -1,0 +1,41 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@v5.2.9
+        with:
+          version: 2026.11.9
+      - name: Verify the Actions lockfile
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v0.4.1 --repo github/gh-actions-lock --pattern linux-amd64 --output "$RUNNER_TEMP/gh-actions-lock"
+          echo "39deb2fe714dbf74b073d8245fc7f3d50cd0eee18d5c0900e9e849ae933ae17e  $RUNNER_TEMP/gh-actions-lock" | sha256sum --check
+          chmod +x "$RUNNER_TEMP/gh-actions-lock"
+          "$RUNNER_TEMP/gh-actions-lock" --verify
+      - run: mise run check
+      - run: mise run licenses
+      - name: Verify release packages
+        uses: goreleaser/goreleaser-action@v7.3.0
+        with:
+          version: v2.20.2
+          args: release --snapshot --clean --skip=publish,sign --parallelism 2
