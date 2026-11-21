@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@v5.2.9
         with:
-          version: 2026.11.9
+          version: 2026.11.10
       - name: Verify the Actions lockfile
         env:
           GH_TOKEN: ${{ github.token }}
