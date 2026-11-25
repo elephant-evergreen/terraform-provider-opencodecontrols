@@ -1,6 +1,7 @@
 # Repository instructions
 
 - Write public documentation, examples, diagnostics, and commit messages in English.
+- Follow the [public information rules](CONTRIBUTING.md#public-information) for documentation, examples, issues, pull requests, commits, and release notes.
 - Use Go and the Terraform Plugin Framework. Run `mise run check` before publication.
 - Keep ordinary tests offline with synthetic identities and fixture credentials.
 - Keep credentials, state, saved plans, and machine-specific paths out of commits and logs.
