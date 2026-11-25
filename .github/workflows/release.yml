@@ -22,7 +22,7 @@ jobs:
       - run: bin/release check-tag "$GITHUB_REF_NAME"
       - uses: jdx/mise-action@v5.2.10
         with:
-          version: 2026.11.10
+          version: 2026.11.12
       - run: mise run check
       - run: mise run licenses
       - name: Import release signing key
