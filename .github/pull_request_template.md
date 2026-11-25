@@ -10,9 +10,3 @@
 - [ ] Examples and fixtures use synthetic values only, with no real keys, identifiers, state, or saved plans.
 
 See the [public information rules](CONTRIBUTING.md#public-information).
-
-## Checks
-
-- [ ] `mise run check` passes.
-- [ ] Generated documentation under `docs/` is committed.
-- [ ] New or changed behavior is covered by tests.
